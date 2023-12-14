@@ -1,4 +1,5 @@
 import { Avatar, Box, Typography } from "@mui/material";
+import Typewriter from "./Typewriter";
 
 const arrowSize = "10px";
 const arrowStyles = {
@@ -10,7 +11,7 @@ const arrowStyles = {
   top: "15px",
 };
 
-const SingleChatBox = ({ role, content }) => {
+const SingleChatBox = ({ role, content, updateScroll }) => {
   return (
     <Box
       display="flex"
@@ -27,8 +28,8 @@ const SingleChatBox = ({ role, content }) => {
         <Avatar sx={{ width: 46, height: 46 }} />
       </Box>
       <Box
-        minWidth={["40%", "40%", "30%"]}
-        maxWidth={["40%", "40%", "30%"]}
+        minWidth={["60%", "60%", "50%"]}
+        maxWidth={["60%", "60%", "50%"]}
         order={role === "user" ? 1 : 2}
       >
         <Box
@@ -48,15 +49,15 @@ const SingleChatBox = ({ role, content }) => {
                 sx={
                   role === "user"
                     ? {
-                        ...arrowStyles,
-                        right: "-14px",
-                        borderLeft: `15px solid #7E839C40`,
-                      }
+                      ...arrowStyles,
+                      right: "-14px",
+                      borderLeft: `15px solid #7E839C40`,
+                    }
                     : {
-                        ...arrowStyles,
-                        left: "-14px",
-                        borderRight: `15px solid #7E839C40`,
-                      }
+                      ...arrowStyles,
+                      left: "-14px",
+                      borderRight: `15px solid #7E839C40`,
+                    }
                 }
               />
               <Typography
@@ -74,7 +75,7 @@ const SingleChatBox = ({ role, content }) => {
                   color: "#FFF",
                 }}
               >
-                {content}
+                {role == 'user' ? content : <Typewriter onTextChanged={updateScroll} text={content} delay={20} />}
               </Typography>
             </Box>
           }

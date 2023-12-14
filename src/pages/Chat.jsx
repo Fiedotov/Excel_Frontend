@@ -6,10 +6,50 @@ import { chats } from "../utils/constants";
 import SingleChatBox from "../components/SingleChatbox";
 import { sendRequest } from "../utils/Request";
 
+const questions = [
+  "Please tell us what your professional or career goals in healthcare are?",
+  "Are you looking into any programs/schools?",
+  "Recommend programs/schools",
+  "Do you have any college courses credits in the last 7 years?",
+  "What college courses have you taken?",
+  "Recommend an academic plan using prerequisite courses",
+  "Do you have any experience working in healthcare?",
+  "Recommend and See if the work experience can meet program requirements"
+];
+
+function isFirstWordRecommend(sentence) {
+  // Split the sentence into an array of words
+  const words = sentence.split(' ');
+
+  // Check if the first word is 'Recommend', case-insensitive
+  if (words.length > 0 && words[0].toLowerCase() === 'recommend') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const bot_name = 'Excel Health Bot';
 const Chat = () => {
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [index, setIndex] = useState(0);
+  const chatBoxRef = useRef(null);
+
+  useEffect(() => {
+    setMessages([...messages, { content: questions[0], role: bot_name }]);
+    setIndex(1);
+  }, []);
+
+  useEffect(() => {
+    updateScroll();
+  }, [messages]);
+
+  const updateScroll = () => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  };
 
   const handleChangeText = (e) => {
     const value = e.target.value;
@@ -19,10 +59,12 @@ const Chat = () => {
   };
 
   const sendMessage = (msg) => {
-    if (index > 3) {
+    setIndex(index + 1);
+    if (isFirstWordRecommend(questions[index])) {
+      setMessages([...messages, { content: msg, role: "user" }, { content: "recommend result", role: bot_name }]);
+      console.log(messages);
       const formdata = new FormData();
       formdata.append("message", msg);
-      setMessages([...messages, { content: msg, role: "user" }]);
       sendRequest("user-question", {
         body: formdata,
       })
@@ -31,17 +73,16 @@ const Chat = () => {
           setMessages([
             ...messages,
             { content: msg, role: "user" },
-            { content: result, role: "assistant" },
+            { content: result, role: bot_name },
           ]);
         });
     }
     else {
-      
+      setMessages([...messages, { content: msg, role: "user" }, { content: questions[index], role: bot_name }]);
     }
   };
 
   const handleClickSendButton = (e) => {
-    console.log(text);
     sendMessage(text);
     setText("");
   };
@@ -63,17 +104,11 @@ const Chat = () => {
   return (
     <>
       <Box
-        maxHeight="90vh"
-        sx={{
-          // overflowY: ["visible", "visible", "scroll"],
-          "&::-webkit-scrollbar": {
-            width: "18px",
-            background: "#2949AB40",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "rgb(41, 73, 171)",
-          },
+        style={{
+          maxHeight: "calc(100vh - 70px)",
+          overflowY: "auto"
         }}
+        ref={chatBoxRef}
       >
         <Box
           px={[1, 1, 2]}
@@ -82,11 +117,11 @@ const Chat = () => {
           gap={2}
           bgcolor="rgb(21, 28, 44)"
           pt={4}
-          pb={14}
-          minHeight="80vh"
+          pb={4}
+          minHeight="calc(100vh - 134px)"
         >
           {messages.map((item) => {
-            return <SingleChatBox key={item.id} {...item} />;
+            return <SingleChatBox updateScroll={updateScroll} key={item.id} {...item} />;
           })}
         </Box>
       </Box>
