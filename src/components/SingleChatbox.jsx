@@ -75,7 +75,7 @@ const SingleChatBox = ({ role, content, updateScroll }) => {
                   color: "#FFF",
                 }}
               >
-                {role == 'user' ? content : <Typewriter onTextChanged={updateScroll} text={content} delay={20} />}
+                {role == 'user' || role == 'Recommend Result' ? content : <Typewriter onTextChanged={updateScroll} text={content} delay={20} />}
               </Typography>
             </Box>
           }

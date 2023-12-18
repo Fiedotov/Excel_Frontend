@@ -5,6 +5,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { chats } from "../utils/constants";
 import SingleChatBox from "../components/SingleChatbox";
 import { sendRequest } from "../utils/Request";
+import { ConstructionOutlined } from "@mui/icons-material";
 
 const questions = [
   "Please tell us what your professional or career goals in healthcare are?",
@@ -14,23 +15,33 @@ const questions = [
   "What college courses have you taken?",
   "Recommend an academic plan using prerequisite courses",
   "Do you have any experience working in healthcare?",
-  "Recommend and See if the work experience can meet program requirements"
+  "Recommend and See if the work experience can meet program requirements",
+];
+
+const answer = [
+  "Name of Program",
+  "Name of Training Institution",
+  "Name of Program",
+  "Name of Program",
+  "Name of Program",
 ];
 
 function isFirstWordRecommend(sentence) {
   // Split the sentence into an array of words
-  const words = sentence.split(' ');
+  const words = sentence.split(" ");
 
   // Check if the first word is 'Recommend', case-insensitive
-  if (words.length > 0 && words[0].toLowerCase() === 'recommend') {
+  if (words.length > 0 && words[0].toLowerCase() === "recommend") {
     return true;
   } else {
     return false;
   }
 }
 
-const bot_name = 'Excel Health Bot';
+const bot_name = "Excel Health Bot";
+const recommend = "Recommend Result";
 const Chat = () => {
+  const [request, setRequest] = useState("");
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [index, setIndex] = useState(0);
@@ -59,26 +70,35 @@ const Chat = () => {
   };
 
   const sendMessage = (msg) => {
-    setIndex(index + 1);
+    let requestString = `${request}"${answer[index - 1]}" : "${msg}", `;
+    setRequest(requestString);
     if (isFirstWordRecommend(questions[index])) {
-      setMessages([...messages, { content: msg, role: "user" }, { content: "recommend result", role: bot_name }]);
-      console.log(messages);
+      setMessages([...messages, { content: msg, role: "user" }]);
+      setIndex(index + 2);
       const formdata = new FormData();
-      formdata.append("message", msg);
-      sendRequest("user-question", {
+      formdata.append("message", requestString);
+      sendRequest("send-message", {
         body: formdata,
       })
         .then((response) => response.json())
         .then((result) => {
+          console.log(result);
+          const nextQuestion = questions[index + 1]
+            ? `\n${questions[index + 1]}`
+            : "";
           setMessages([
             ...messages,
             { content: msg, role: "user" },
-            { content: result, role: bot_name },
+            { content: `${result}${nextQuestion}`, role: recommend },
           ]);
         });
-    }
-    else {
-      setMessages([...messages, { content: msg, role: "user" }, { content: questions[index], role: bot_name }]);
+    } else {
+      setIndex(index + 1);
+      setMessages([
+        ...messages,
+        { content: msg, role: "user" },
+        { content: questions[index], role: bot_name },
+      ]);
     }
   };
 
@@ -98,7 +118,8 @@ const Chat = () => {
   );
 
   useEffect(() => {
-    sendRequest("create-new-thread").then((response) => response.json());
+    // Create New Thread
+    // sendRequest("create-new-thread").then((response) => response.json());
   }, []);
 
   return (
@@ -106,7 +127,7 @@ const Chat = () => {
       <Box
         style={{
           maxHeight: "calc(100vh - 70px)",
-          overflowY: "auto"
+          overflowY: "auto",
         }}
         ref={chatBoxRef}
       >
@@ -121,7 +142,13 @@ const Chat = () => {
           minHeight="calc(100vh - 134px)"
         >
           {messages.map((item) => {
-            return <SingleChatBox updateScroll={updateScroll} key={item.id} {...item} />;
+            return (
+              <SingleChatBox
+                updateScroll={updateScroll}
+                key={item.id}
+                {...item}
+              />
+            );
           })}
         </Box>
       </Box>
