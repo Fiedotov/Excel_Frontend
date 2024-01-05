@@ -1,5 +1,8 @@
 import { Avatar, Box, Typography } from "@mui/material";
 import Typewriter from "./Typewriter";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 
 const arrowSize = "10px";
 const arrowStyles = {
@@ -12,6 +15,7 @@ const arrowStyles = {
 };
 
 const SingleChatBox = ({ role, content, updateScroll }) => {
+  let res = content;
   return (
     <Box
       display="flex"
@@ -75,7 +79,7 @@ const SingleChatBox = ({ role, content, updateScroll }) => {
                   color: "#FFF",
                 }}
               >
-                {role == 'user' || role == 'Recommend Result' ? content : <Typewriter onTextChanged={updateScroll} text={content} delay={20} />}
+                {role == 'user' || role == 'Recommend Result' ? <ReactMarkdown children={res} remarkPlugins={[remarkGfm]} /> : <ReactMarkdown children={res} remarkPlugins={[remarkGfm]} />}
               </Typography>
             </Box>
           }

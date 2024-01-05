@@ -1,4 +1,4 @@
-const getFullUrl = (url) => {
+export const getFullUrl = (url) => {
   return import.meta.env.VITE_REACT_APP_API_HOST + url;
 };
 
